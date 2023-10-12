@@ -6,7 +6,7 @@ class Progress:
                     precision: int = 2, 
                     bar_length: int = 10, 
                     style: str = '=',
-                    width_rate: int = 1,
+                    width_rate: int = None,
                     flag: str = 's'
                     ):
         import time
@@ -19,6 +19,8 @@ class Progress:
         self.precision = precision
         self.bar_length = bar_length
         self.style = style
+        if width_rate is None:
+            width_rate = len(style)
         self.width_rate = width_rate
         self.last_time = None
         self.flag = flag  # 'o' or 's'
@@ -40,23 +42,25 @@ class Progress:
         return 0.01
         
     def step(self, flag):
-        rating = '{:4>.3f}%s/s'%self.unit if flag == 's' else '{:4>.3f}s/%s'%self.unit
+        delta_time = self.__calculateTime()
         self.__yet += 1
-        shape_length = self.bar_length
-        progress = self.progress * self.bar_length
-        bar = self.style * int(progress)
-        
-        def logConsole():
-            print((('\r%s {:0>5.1f}%s[{: <%d}] ' + rating)
-                        % (self.label, '%', shape_length * self.width_rate)
-                            ).format(
-                                self.progress * 100,
-                                bar,
-                                self.__calculateTime()
-                            ), 
-                end = '' if self.__totalPrecision != 1 else '\n'
-                )
         if self.__yet % self.log_step == 0:
+            rating = '{:4>.3f}%s/s'%self.unit if flag == 's' else '{:4>.3f}s/%s'%self.unit
+            shape_length = self.bar_length
+            progress = self.progress * self.bar_length
+            bar = self.style * int(progress)
+            
+            def logConsole():
+                print((('\r%s {:0>5.1f}%s[{: <%d}] ' + rating)
+                            % (self.label, '%', shape_length * self.width_rate)
+                                ).format(
+                                    self.progress * 100,
+                                    bar,
+                                    delta_time
+                                ), 
+                    end = '.' if self.__totalPrecision != 1 else '\n'
+                    )
+    
             logConsole()
         
     def __iter__(self):
@@ -67,7 +71,7 @@ class Progress:
     def __next__(self):
         self.step(self.flag)
         if self.__index >= self.__end - 1:
-            raise StopIteration()
+            raise StopIteration
         self.__index += 1
         
         return self.__iterObject[self.__index]
@@ -97,5 +101,5 @@ def fibo3(n):
         j += i
     return j if n % 2 == 0 else i
 
-fibo3(1000000)
+fibo3(500000)
 print('end')
