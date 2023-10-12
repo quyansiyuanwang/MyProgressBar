@@ -1,6 +1,7 @@
 class Progress:
     def __init__(self, total, 
                     label: str = 'progress:',
+                    unit: str = 't', 
                     step: int = 1, 
                     precision: int = 2, 
                     bar_length: int = 10, 
@@ -13,6 +14,7 @@ class Progress:
         self.__end = len(self.__total)
         self.__yet = -1
         self.label = label
+        self.unit = unit
         self.log_step = step
         self.precision = precision
         self.bar_length = bar_length
@@ -38,7 +40,7 @@ class Progress:
         return 0.01
         
     def step(self, flag):
-        rating = '{:4>.3f}t/s' if flag == 's' else '{:4>.3f}s/t'
+        rating = '{:4>.3f}%s/s'%self.unit if flag == 's' else '{:4>.3f}s/%s'%self.unit
         self.__yet += 1
         shape_length = self.bar_length
         progress = self.progress * self.bar_length
